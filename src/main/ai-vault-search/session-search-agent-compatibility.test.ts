@@ -76,8 +76,8 @@ test.each(['qoder', 'jcode'] as const)(
         filters: {
           agents: AI_VAULT_AGENTS.filter((candidate) =>
             agent === 'qoder'
-              ? !['jcode', 'kiro'].includes(candidate)
-              : !['codebuddy', 'zcode', 'qoder', 'kiro'].includes(candidate)
+              ? !['jcode', 'kiro', 'dsh'].includes(candidate)
+              : !['codebuddy', 'zcode', 'qoder', 'kiro', 'dsh'].includes(candidate)
           )
         }
       },
@@ -188,21 +188,24 @@ test('projects agents before cursor identity and preserves every other ranking f
   ).toEqual({ kind: 'malformed-cursor' })
 })
 
-test('keeps current Jcode hits and removes unrequested agents before publication', async () => {
-  const service = fakeSearchService()
-  service.search.mockResolvedValue({
-    ...searchResults(),
-    hits: [{ ...searchHit(), agent: 'jcode' }, searchHit()]
-  })
-  setSessionSearchService(service)
-  expect(
-    await searchSessionService(
-      { query: 'proof', supportedAgents: [...AI_VAULT_AGENTS], filters: { agents: ['jcode'] } },
-      'relay'
+test.each(['jcode', 'dsh'] as const)(
+  'keeps current %s hits and removes unrequested agents before publication',
+  async (agent) => {
+    const service = fakeSearchService()
+    service.search.mockResolvedValue({
+      ...searchResults(),
+      hits: [{ ...searchHit(), agent }, searchHit()]
+    })
+    setSessionSearchService(service)
+    expect(
+      await searchSessionService(
+        { query: 'proof', supportedAgents: [...AI_VAULT_AGENTS], filters: { agents: [agent] } },
+        'relay'
+      )
+    ).toMatchObject({ hits: [{ agent }] })
+    expect(service.search).toHaveBeenCalledExactlyOnceWith(
+      { query: 'proof', limit: 20, filters: { agents: [agent] } },
+      undefined
     )
-  ).toMatchObject({ hits: [{ agent: 'jcode' }] })
-  expect(service.search).toHaveBeenCalledExactlyOnceWith(
-    { query: 'proof', limit: 20, filters: { agents: ['jcode'] } },
-    undefined
-  )
-})
+  }
+)
