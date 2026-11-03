@@ -1,0 +1,56 @@
+name: Personal fork upstream preflight
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-fork-upstream-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.repository == 'r1cA18/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Fetch the latest stable upstream release
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=$(gh api repos/stablyai/orca/releases/latest --jq '.tag_name')
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git fetch --no-tags https://github.com/stablyai/orca.git "refs/tags/$tag:refs/tags/fork-update-target"
+          printf 'Upstream stable release: %s\n' "$tag" >> "$GITHUB_STEP_SUMMARY"
+      - name: Check merge and review boundaries
+        shell: bash
+        run: |
+          set +e
+          node config/scripts/fork-update-preflight.mjs refs/tags/fork-update-target > fork-update-report.json
+          result=$?
+          cat fork-update-report.json
+          printf '\n```json\n' >> "$GITHUB_STEP_SUMMARY"
+          cat fork-update-report.json >> "$GITHUB_STEP_SUMMARY"
+          printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
+          exit "$result"
+      - name: Preserve the update report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fork-update-report
+          path: fork-update-report.json
+          if-no-files-found: warn
+          retention-days: 14

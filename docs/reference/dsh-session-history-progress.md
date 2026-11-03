@@ -54,3 +54,31 @@ The first pre-push quality gate flagged type assertions in the decoder and its
 UTF-8 fixture. The decoder now checks the returned buffer and consumed byte
 count at runtime, and the fixture no longer requires a cast. Run the final
 changed checks against the pinned upstream base before publishing.
+
+## Upstream maintenance preparation
+
+The owner requested minimal migration work and automatic upstream tracking, with
+manual handling for conflicts and substantial changes. A separate
+`feature/upstream-maintenance` branch now carries a non-mutating preflight and a
+read-only scheduled workflow definition. The schedule is not enabled or deployed
+to the default branch. Application replacement and update-feed changes are pending.
+
+The latest stable release inspected was `v1.4.247`, commit
+`97b9bb3613a333450a38057d745628323f3ad185`. A direct history merge produced three
+conflicts in upstream permission handling unrelated to the DSH patch. Reapplying
+only the committed fork delta from its recorded upstream base produced a clean
+candidate tree. The base-to-release difference spans 3,102 files and 210,184
+changed lines, including profile-state and updater changes, so preflight requires
+review. This is not an accepted or built upgrade.
+
+The production updater still points to upstream, and macOS release packaging
+expects upstream's signing identity. Personal release feed, signing, one-time
+profile migration, package ownership and an actual second-version update remain
+necessary before unattended application updates can be claimed.
+
+Preflight verification passed all eight temporary-repository tests: candidate
+contents, preservation of dirty work, conflicts, sensitive-path review, large
+changes, already-included releases, divergent upstream histories and invalid
+bases/ancestry. The real stable release produced a review-required report with
+zero patch conflicts. These checks do not validate the candidate application.
+The owner selected signed personal releases as the distribution direction.
