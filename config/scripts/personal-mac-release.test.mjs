@@ -19,6 +19,7 @@ describe('personal macOS release setup', () => {
     const output = `1) HASH "${name}"\n2) HASH "Developer ID Application: Other (OTHER12345)"`
     expect(() => selectDeveloperIdentity(output)).toThrow('Exactly one')
     expect(selectDeveloperIdentity(output, name)).toEqual(identity)
+    expect(selectDeveloperIdentity(output, 'Fixture (EXAMPL1234)')).toEqual(identity)
     expect(() => selectDeveloperIdentity('')).toThrow('Exactly one')
   })
   it('uses Keychain credentials without exporting private keys or inheriting conflicting login methods', () => {
@@ -28,7 +29,8 @@ describe('personal macOS release setup', () => {
     )
     expect(env.APPLE_KEYCHAIN_PROFILE).toBe('orca-personal')
     expect(env.APPLE_TEAM_ID).toBe(identity.team)
-    expect(env.CSC_NAME).toBe(name)
+    expect(env.CSC_NAME).toBe('Fixture (EXAMPL1234)')
+    expect(env.ORCA_REQUIRE_ORCAD_TEMPLATE).toBe('1')
     expect(env.PATH).toBe('/fixture')
     expect(env.APPLE_ID).toBeUndefined()
     expect(env.CSC_LINK).toBeUndefined()

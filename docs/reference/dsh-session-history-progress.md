@@ -122,3 +122,18 @@ produces artifacts for the current Mac architecture, and disables publication.
 The publisher and updater use `latest-mac.yml` even for personal prerelease
 versions. Artifact signing/notarization, release publication, automatic scheduling
 and production installation are still pending.
+
+The notarization setup saved the local Keychain profile successfully. The final
+changed gate passed 24 of 25 checks; related unit-test selection timed out after
+three minutes. Explicit updater/distribution coverage passed 404 of 406 tests;
+the two failures were in the unchanged WSL move driver, whose five tests all
+passed in isolation. This is not a fully green combined run.
+
+Real packaging uncovered the certificate-name prefix rejected by electron-builder.
+The helper now strips that prefix after selecting the matching Developer ID and
+requires a full server deployment template to avoid dropping remote provisioning.
+The initial build also required installing the separate frozen mobile lockfile.
+Native inputs for the server template were obtained from the successful upstream
+v1.4.247 release run and validated through the existing slot/hash verifier.
+The server JavaScript is built locally from the fork. Signing/notarization and
+production migration remain pending until their actual checks complete.

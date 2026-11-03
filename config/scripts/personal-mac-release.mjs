@@ -8,7 +8,12 @@ export function selectDeveloperIdentity(output, requestedName) {
     ...output.matchAll(/"(Developer ID Application:[^"\n]+ \(([A-Z0-9]{10})\))"/g)
   ]
     .map((match) => ({ name: match[1], team: match[2] }))
-    .filter((identity) => !requestedName || identity.name === requestedName)
+    .filter(
+      (identity) =>
+        !requestedName ||
+        identity.name === requestedName ||
+        identity.name.replace(/^Developer ID Application: /, '') === requestedName
+    )
   if (identities.length !== 1) {
     throw new Error(
       'Exactly one Developer ID Application identity is required; set CSC_NAME to select one.'
@@ -23,9 +28,10 @@ export function personalMacReleaseEnvironment(env, identity) {
   }
   const child = {
     ...env,
-    CSC_NAME: identity.name,
+    CSC_NAME: identity.name.replace(/^Developer ID Application: /, ''),
     APPLE_TEAM_ID: identity.team,
-    APPLE_KEYCHAIN_PROFILE: env.APPLE_KEYCHAIN_PROFILE || 'orca-personal'
+    APPLE_KEYCHAIN_PROFILE: env.APPLE_KEYCHAIN_PROFILE || 'orca-personal',
+    ORCA_REQUIRE_ORCAD_TEMPLATE: '1'
   }
   for (const key of [
     'CSC_LINK',

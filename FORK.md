@@ -41,9 +41,9 @@ turn off automatic hook reconciliation in a preview profile before starting it
 against a real home directory. Agent-launched app tests must set
 `ORCA_BACKGROUND_LAUNCH=1` and keep windows hidden.
 
-The fork has not replaced the installed application. Interactive TUI resume,
-Core dispatch through the subscription transport, and remote-host application
-acceptance remain outside the verified scope.
+The fork has not replaced the installed application. Local History and interactive
+TUI resume passed isolated acceptance. Core subscription dispatch and remote-host
+application acceptance remain outside the verified scope.
 
 ## Upstream maintenance
 
@@ -116,3 +116,20 @@ Credentials remain local. A hosted build runner would need separate explicit
 credential provisioning; the repository does not export keys to GitHub.
 See [Apple's app-specific password instructions](https://support.apple.com/102654)
 and [notarization workflow](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).
+
+The personal build requires the complete orcad deployment template. Install the
+root and `mobile` dependencies from their frozen lockfiles and build desktop
+assets first. For the initial stable base, native slots come from the successful
+upstream v1.4.247 release run `41569939151`. Its macOS release run
+`41571626758` identifies that parent explicitly. Native slot manifests and file
+hashes are checked by `merge-orcad-prebuilds.mjs`; Windows process-tree, CLI
+launcher and security artifacts are staged in their normal `.build` directories.
+`build-orcad-template.mjs` then builds the server JavaScript from this fork and
+validates the complete target matrix. These upstream native inputs are not a
+replacement for the fork's server code or remote-host acceptance.
+
+The certificate selector accepts either the full Keychain identity or its
+name/team suffix. It passes the suffix to electron-builder, which rejects the
+`Developer ID Application:` prefix. The initial real packaging attempt exposed
+that contract; it was corrected without changing certificate selection or
+weakening signature verification.
