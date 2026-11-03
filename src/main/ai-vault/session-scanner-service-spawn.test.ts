@@ -42,9 +42,11 @@ describe('spawnAiVaultServiceProcess', () => {
 
   it('still passes through a relocated agent home', () => {
     vi.stubEnv('CODEX_HOME', '/home/dev/elsewhere/.codex')
+    vi.stubEnv('DSH_HOME', '/home/dev/elsewhere/dsh')
     spawnAiVaultServiceProcess()
 
     expect(forkOptions().env?.CODEX_HOME).toBe('/home/dev/elsewhere/.codex')
+    expect(forkOptions().env?.DSH_HOME).toBe('/home/dev/elsewhere/dsh')
     vi.unstubAllEnvs()
   })
 

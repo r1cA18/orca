@@ -1,3 +1,4 @@
+import { writeDshFixture } from './session-scanner-dsh-fixture'
 import {
   isolatedScanRoots,
   writeJcodeSessionFixture,
@@ -22,6 +23,7 @@ export async function writeEveryAgentVault(root: string): Promise<EveryAgentVaul
   const antigravitySessionId = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
   const { ompSessionFile, primeAgentSessionFile } = await writeLogAgentFixtures(roots)
   await writeDocumentAgentFixtures(root, roots, antigravitySessionId)
+  await writeDshFixture(roots.dshSessionsDir)
   await writeMuseScannerFixture(roots.museSessionsDir)
   await writeJcodeSessionFixture(roots)
   await writeKiroSessionFixture(roots)

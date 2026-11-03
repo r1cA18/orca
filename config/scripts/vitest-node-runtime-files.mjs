@@ -2,6 +2,8 @@ import { findSqliteRuntimeTests } from './vitest-sqlite-runtime-scan.mjs'
 
 // SQLite publication, native bindings, worker IPC, socket liveness, and V8 retention use Node.
 const NODE_RUNTIME_INCLUDE = [
+  // Bun accepts truncated Zstandard frames; exercise the production Node decoder.
+  'src/main/ai-vault/session-scanner-dsh.test.ts',
   // Exercise the native fetch error and abort contracts used by the Linear SDK in Electron.
   'src/main/linear/linear-request-recovery.test.ts',
   'src/main/linear/linear-issue-detail-deadline.test.ts',

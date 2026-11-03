@@ -31,6 +31,7 @@ const AGENT_ROOT_ENV_ALLOWLIST = [
   'CLINE_SESSION_DATA_DIR',
   'COPILOT_HOME',
   'DEVIN_HOME',
+  'DSH_HOME',
   'GROK_HOME',
   'KIMI_CODE_HOME',
   'KIRO_HOME',
@@ -86,13 +87,13 @@ export function buildAiVaultServiceEnv(
   return env
 }
 
-/** Relay init supplies most roots; preserve host-side Kiro and OpenCode overrides. */
+/** Relay init supplies most roots; preserve host-side DSH, Kiro and OpenCode overrides. */
 export function buildRelayAiVaultServiceEnv(
   baseEnv: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform
 ): NodeJS.ProcessEnv {
   return pickAllowedEnv(
-    [...RUNTIME_ENV_ALLOWLIST, 'XDG_DATA_HOME', 'OPENCODE_DB', 'KIRO_HOME'],
+    [...RUNTIME_ENV_ALLOWLIST, 'XDG_DATA_HOME', 'OPENCODE_DB', 'KIRO_HOME', 'DSH_HOME'],
     baseEnv,
     platform
   )

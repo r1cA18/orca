@@ -139,6 +139,7 @@ export const AI_VAULT_SCOPE_CWD_SOURCES: Record<AiVaultAgent, SessionScopeCwdSou
   zcode: PARSE,
   devin: PARSE,
   kimi: PARSE,
+  dsh: PARSE,
   muse: PARSE,
   jcode: PARSE
 }

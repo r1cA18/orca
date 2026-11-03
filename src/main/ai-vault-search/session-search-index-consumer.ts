@@ -36,6 +36,7 @@ export const SELF_CONTAINED_TRANSCRIPT_AGENTS = {
   cline: false, // A .messages.json sidecar supplies messages.
   devin: false, // sessions.db supplies metadata.
   kimi: false, // agents/main/wire.jsonl supplies messages.
+  dsh: true,
   muse: true,
   jcode: true,
   kiro: false // A .jsonl sidecar supplies messages.
