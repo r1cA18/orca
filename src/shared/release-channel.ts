@@ -156,6 +156,10 @@ export function parseDevBuildStamp(version: string): Date | null {
   )
 }
 
+export function isPersonalReleaseVersion(version: string): boolean {
+  return /^\d+\.\d+\.\d+-personal\.[1-9]\d*$/.test(normalizeTagToVersion(version))
+}
+
 export function getVersionChannel(version: string): ReleaseChannel | null {
   const normalized = normalizeTagToVersion(version)
   if (!isValidAppVersion(normalized)) {
@@ -172,7 +176,7 @@ export function getVersionChannel(version: string): ReleaseChannel | null {
   }
   // Why the dev channels are tested first: they are prereleases too, so this
   // catch-all would otherwise file every one of them under rc.
-  return normalized.includes('-') ? 'rc' : 'stable'
+  return normalized.includes('-') && !isPersonalReleaseVersion(normalized) ? 'rc' : 'stable'
 }
 
 /** Dev tags need their publishing repo or links 404. Missing versions use the releases list; latest can fail during GitHub API degradation. */

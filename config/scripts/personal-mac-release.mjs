@@ -55,6 +55,19 @@ export function validatePersonalBuildVersion(version, base) {
   return version
 }
 
+export function personalMacBuildArguments(arch, version) {
+  return [
+    'run',
+    'build:mac:release',
+    '--mac',
+    `dmg:${arch}`,
+    `zip:${arch}`,
+    '--publish',
+    'never',
+    `--config.extraMetadata.version=${version}`
+  ]
+}
+
 if (isDirectInvocation(import.meta.url, process.argv[1])) {
   try {
     if (process.platform !== 'darwin') {
@@ -94,18 +107,11 @@ if (isDirectInvocation(import.meta.url, process.argv[1])) {
         ],
         { stdio: 'ignore', env }
       )
-      execFileSync(
-        'pnpm',
-        [
-          'run',
-          'build:mac:release',
-          `--${process.arch}`,
-          '--publish',
-          'never',
-          `--config.extraMetadata.version=${buildVersion}`
-        ],
-        { cwd: root, stdio: 'inherit', env }
-      )
+      execFileSync('pnpm', personalMacBuildArguments(process.arch, buildVersion), {
+        cwd: root,
+        stdio: 'inherit',
+        env
+      })
     }
   } catch (error) {
     console.error(error.message)

@@ -117,6 +117,28 @@ describe('fetchNewerReleaseTag', () => {
     expect(await fetchNewerReleaseTag('1.3.19-rc.4')).toBe('v1.3.19-rc.6')
   })
 
+  it('includes ordered personal revisions in stable-channel checks', async () => {
+    respondWithAtom(['v1.4.248-rc.1', 'v1.4.247-personal.2', 'v1.4.247-personal.1'])
+    const { fetchNewerReleaseTag } = await import('./updater-prerelease-feed')
+    expect(await fetchNewerReleaseTag('1.4.247-personal.1', { includePrerelease: false })).toBe(
+      'v1.4.247-personal.2'
+    )
+  })
+
+  it.each([
+    ['v1.4.247-personal.1', 'v1.4.247-personal.1'],
+    ['v1.4.248-rc.1', null],
+    ['v1.4.247-personal.0', null]
+  ])('resolves the latest personal release without opting into RC: %s', async (tag, expected) => {
+    respondWithAtom([tag])
+    netFetchMock.mockResolvedValueOnce({
+      status: 302,
+      headers: { get: () => `https://github.com/r1cA18/orca/releases/tag/${tag}` }
+    })
+    const { fetchLatestStableReleaseTag } = await import('./updater-prerelease-feed')
+    expect(await fetchLatestStableReleaseTag()).toBe(expected)
+  })
+
   it('can exclude prerelease tags for stable-channel checks', async () => {
     respondWithAtom(['v1.4.1-rc.0', 'v1.4.0', 'v1.3.52-rc.3', 'v1.3.51'])
     const { fetchNewerReleaseTag } = await import('./updater-prerelease-feed')

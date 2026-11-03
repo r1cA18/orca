@@ -133,3 +133,10 @@ name/team suffix. It passes the suffix to electron-builder, which rejects the
 `Developer ID Application:` prefix. The initial real packaging attempt exposed
 that contract; it was corrected without changing certificate selection or
 weakening signature verification.
+
+Personal revisions are published as regular GitHub releases with `latest` set.
+Their `-personal.N` suffix identifies an ordered personal stable build, not an
+upstream RC. Release selection and the latest-release fallback recognize that
+format, while arbitrary RC and invalid personal revisions remain excluded from
+stable checks. Publishing only a GitHub prerelease would leave `/releases/latest`
+unavailable for the first personal build.

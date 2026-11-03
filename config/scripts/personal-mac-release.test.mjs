@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { createRequire } from 'node:module'
 import {
   personalMacReleaseEnvironment,
+  personalMacBuildArguments,
   selectDeveloperIdentity,
   validatePersonalBuildVersion
 } from './personal-mac-release.mjs'
@@ -45,3 +47,25 @@ describe('personal macOS release setup', () => {
     expect(() => validatePersonalBuildVersion('1.4.248-personal.1', '1.4.247')).toThrow('form')
   })
 })
+
+const require = createRequire(import.meta.url)
+const {
+  configureBuildCommand,
+  createYargs,
+  normalizeOptions
+} = require('electron-builder/out/builder.js')
+it.each(['arm64', 'x64'])(
+  'pins explicit packaging targets for %s despite the dual-architecture config',
+  (arch) => {
+    const argv = configureBuildCommand(createYargs()).parse([
+      '--config',
+      'config/electron-builder.config.cjs',
+      '--mac',
+      ...personalMacBuildArguments(arch, '1.4.247-personal.1').slice(2)
+    ])
+    const targets = [...normalizeOptions(argv).targets.values()]
+    expect(targets).toHaveLength(1)
+    expect([...targets[0].values()]).toEqual([['dmg', 'zip']])
+    expect(argv.mac).toEqual([`dmg:${arch}`, `zip:${arch}`])
+  }
+)

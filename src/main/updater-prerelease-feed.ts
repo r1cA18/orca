@@ -1,7 +1,8 @@
 import { APP_RELEASE_REPO, releaseTagFromUrl } from '../shared/app-release-url'
+import { getVersionChannel } from '../shared/release-channel'
 import { net } from 'electron'
 import { parse } from 'yaml'
-import { compareVersions, isPrereleaseVersion, isValidVersion } from './updater-fallback'
+import { compareVersions, isValidVersion } from './updater-fallback'
 
 const ATOM_FEED_URL = `https://github.com/${APP_RELEASE_REPO}/releases.atom`
 const RELEASES_DOWNLOAD_BASE = `https://github.com/${APP_RELEASE_REPO}/releases/download`
@@ -232,7 +233,7 @@ export async function fetchLatestStableReleaseTag(): Promise<string | null> {
       return null
     }
     const version = normalizeTagToVersion(tag)
-    if (!isValidVersion(version) || isPrereleaseVersion(version)) {
+    if (getVersionChannel(version) !== 'stable') {
       return null
     }
     return (await getPlatformManifestReadiness(tag)) === 'ready' ? tag : null
@@ -288,7 +289,7 @@ export async function fetchNewerReleaseTagsWithReadiness(
       ? tags.filter(({ tag }) => isPerfPrereleaseTag(tag))
       : includePrerelease
         ? tags.filter(({ tag }) => !isPerfPrereleaseTag(tag))
-        : tags.filter(({ version }) => !isPrereleaseVersion(version))
+        : tags.filter(({ version }) => getVersionChannel(version) === 'stable')
   const newestNewerIndex = candidates.findIndex(
     ({ version }) => compareVersions(version, currentVersion) > 0
   )

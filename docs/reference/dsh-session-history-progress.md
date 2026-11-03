@@ -137,3 +137,17 @@ Native inputs for the server template were obtained from the successful upstream
 v1.4.247 release run and validated through the existing slot/hash verifier.
 The server JavaScript is built locally from the fork. Signing/notarization and
 production migration remain pending until their actual checks complete.
+
+Pre-publication review reproduced another edge case in three assertions: personal
+revision tags were treated as RCs and rejected by the latest stable fallback,
+which would make checks fail when the first personal build has no newer release.
+The personal revision format is now treated as stable for selection and fallback,
+without allowing ordinary RCs. GitHub publication must use a regular latest
+release. No affected build has been published or installed.
+
+Apple accepted the first complete arm64 app's notarization. Its packaging run
+then attempted an unintended x64 target because the upstream configuration
+explicitly lists both architectures. The helper now supplies architecture-specific
+DMG and ZIP targets, verified through electron-builder's actual CLI parser. The
+accepted artifact predates the personal-version correction and will not be
+published; the corrected source needs a fresh signed build.
