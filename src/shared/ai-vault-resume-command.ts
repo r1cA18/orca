@@ -1,4 +1,5 @@
 // Build history resume lines for the execution platform and actual shell.
+import { dshResumeCommandBase } from './dsh-session-paths'
 import { quoteCmdDoubleQuoted } from './shell-argument-quoting'
 import {
   isAntigravityReferenceSession,
@@ -29,7 +30,16 @@ export function buildAiVaultResumeCommand(args: {
 }): string {
   const { agent, sessionId, cwd, platform, commandOverride, codexHome, resumeFilePath, shell } =
     args
-  const baseCommand = commandOverride?.trim() || defaultAiVaultResumeCommandBase(agent)
+  const selectedCommand = commandOverride?.trim() || defaultAiVaultResumeCommandBase(agent)
+  const baseCommand =
+    agent === 'dsh'
+      ? dshResumeCommandBase(
+          selectedCommand,
+          normalizeAiVaultResumeFilePath(resumeFilePath ?? undefined, platform),
+          platform,
+          shell
+        )
+      : selectedCommand
   // OMP/Prime --resume accepts absolute transcript paths across custom roots/WSL; default-store ID lookup would miss them. Fall back to ID without a path.
   const resumeTarget =
     (agent === 'omp' || agent === 'prime-agent') && resumeFilePath?.trim()
@@ -199,6 +209,8 @@ function buildAgentResumeInvocation(
       return `${baseCommand} resume ${sessionArg}`
     case 'cline':
       return `${baseCommand} --id ${sessionArg}`
+    case 'dsh':
+      return `${baseCommand} --backend=dsh --resume ${sessionArg}`
     case 'qoder':
     case 'codebuddy':
     case 'claude':

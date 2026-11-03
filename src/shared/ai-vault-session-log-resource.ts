@@ -58,6 +58,7 @@ const logFileResolvers = {
   cline: (filePath) => clineMessagesPathForMetadata(filePath) || null,
   // The primary wire path requires state contents unavailable in a History row.
   kimi: () => null,
+  dsh: () => null,
   muse: jsonlLog,
   jcode: jsonLog,
   kiro: (filePath) => kiroTranscriptPathForMetadata(filePath) || null

@@ -10,6 +10,7 @@ import { parseGrokSessionFile } from './session-scanner-grok-parser'
 import { parseMessageGraphSessionFile, parseRovoSessionFile } from './session-scanner-graph-parsers'
 import { parseKimiSessionFile } from './session-scanner-kimi-parser'
 import { parseMuseSessionFile } from './session-scanner-muse-parser'
+import { parseDshSessionFile } from './session-scanner-dsh-parser'
 import { splitOpenCodeSqliteCandidate } from './session-scanner-opencode-sqlite-paths'
 import { parseJcodeSessionFile } from './session-scanner-jcode-parser'
 import { parseKiroSessionFile } from './session-scanner-kiro-parser'
@@ -141,6 +142,8 @@ export async function parseAgentSessionFile(
       return parseDevinSessionFile(candidate.file, platform, messages, signal)
     case 'kimi':
       return parseKimiSessionFile(candidate.file, platform, messages)
+    case 'dsh':
+      return parseDshSessionFile(candidate.file, platform, messages, signal)
     case 'muse':
       return parseMuseSessionFile(candidate.file, platform, messages)
     case 'jcode':

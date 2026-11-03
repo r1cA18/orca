@@ -1,3 +1,4 @@
+import { DSH_AGENT_SOURCE } from './session-scanner-dsh-source'
 import { homedir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 import { pathSegments } from './session-file-discovery'
@@ -288,6 +289,7 @@ export const AI_VAULT_AGENT_SOURCES: AiVaultAgentSourceTable = {
     filePredicate: (filePath) =>
       basename(filePath) === 'state.json' && basename(dirname(filePath)).startsWith('session_')
   },
+  dsh: DSH_AGENT_SOURCE,
   muse: {
     rootDirs: (options, wslHomeDirs) =>
       sessionRootDirs(resolveMuseSessionsDir(options.museSessionsDir), wslHomeDirs, [

@@ -37,6 +37,7 @@ describe('buildAiVaultServiceEnv', () => {
         CLINE_SESSION_DATA_DIR: '/home/dev/cline-sessions',
         COPILOT_HOME: '/home/dev/.copilot',
         DEVIN_HOME: '/home/dev/.devin',
+        DSH_HOME: '/home/dev/dsh-custom',
         GROK_HOME: '/home/dev/.grok',
         KIMI_CODE_HOME: '/home/dev/.kimi-code',
         KIRO_HOME: '/home/dev/kiro-data',
@@ -56,6 +57,7 @@ describe('buildAiVaultServiceEnv', () => {
       CLINE_SESSION_DATA_DIR: '/home/dev/cline-sessions',
       COPILOT_HOME: '/home/dev/.copilot',
       DEVIN_HOME: '/home/dev/.devin',
+      DSH_HOME: '/home/dev/dsh-custom',
       GROK_HOME: '/home/dev/.grok',
       KIMI_CODE_HOME: '/home/dev/.kimi-code',
       KIRO_HOME: '/home/dev/kiro-data',
@@ -165,4 +167,12 @@ it('preserves execution-host OpenCode roots in the relay service', () => {
     XDG_DATA_HOME: '/srv/data',
     OPENCODE_DB: 'opencode-team.db'
   })
+})
+
+it('preserves DSH homes in desktop and relay children with Windows case folding', () => {
+  for (const build of [buildAiVaultServiceEnv, buildRelayAiVaultServiceEnv]) {
+    expect(build({ DSH_HOME: '/srv/dsh' }, 'linux').DSH_HOME).toBe('/srv/dsh')
+    expect(build({ dsh_home: 'D:\\dsh' }, 'win32').DSH_HOME).toBe('D:\\dsh')
+    expect(build({ dsh_home: '/tmp/spoof' }, 'linux').DSH_HOME).toBeUndefined()
+  }
 })
