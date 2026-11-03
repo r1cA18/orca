@@ -8,6 +8,11 @@ const REVIEW_PATHS = [
   'config/scripts/sign-mac-app.mjs',
   'config/scripts/verify-macos-release-env.mjs',
   'src/main/updater/',
+  'src/main/updater-',
+  'src/main/updater.ts',
+  'src/shared/release-channel.ts',
+  'src/shared/app-distribution.json',
+  'src/shared/app-release-url.ts',
   'src/main/persistence/profile-state/',
   'src/main/orca-profiles/'
 ]
@@ -60,7 +65,9 @@ export function inspectForkUpdate(root, upstreamRef, forkBaseRef) {
   }, 0)
   const reviewPaths = changedFiles.filter((file) =>
     REVIEW_PATHS.some(
-      (prefix) => file === prefix || (prefix.endsWith('/') && file.startsWith(prefix))
+      (prefix) =>
+        file === prefix ||
+        ((prefix.endsWith('/') || prefix.endsWith('-')) && file.startsWith(prefix))
     )
   )
   const reasons = []

@@ -151,3 +151,24 @@ explicitly lists both architectures. The helper now supplies architecture-specif
 DMG and ZIP targets, verified through electron-builder's actual CLI parser. The
 accepted artifact predates the personal-version correction and will not be
 published; the corrected source needs a fresh signed build.
+
+## Final package and monitoring
+
+Payload commit `d92c43654` successfully produced the corrected Apple Silicon
+DMG/ZIP and updater manifest for `1.4.247-personal.1`. Apple accepted the final
+notarization. Stapler, deep/strict signature verification and Gatekeeper checks
+passed; manifest sizes and SHA-512 values match both artifacts.
+
+Hidden Playwright acceptance launched that signed package with a disposable
+home/profile and read all four saved DSH sessions with matching replies and
+zero issues. The app version matched and its window remained hidden. The test
+uses a mock Keychain and does not verify migration of existing Keychain grants.
+All nine server native target slots were validated; remote application acceptance
+and an actual second-version application update remain unverified.
+
+After explicit owner approval, the repository default branch changed to
+`feature/personal-stable`. Actions was temporarily disabled while 73 inherited
+workflows were individually disabled, then restored with only the personal
+upstream preflight enabled. A regression check reproduced five unguarded updater
+and release-routing paths; the review guard now includes them. The initial
+hosted monitoring run is pending. No production app/profile has been replaced.

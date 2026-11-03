@@ -67,13 +67,21 @@ describe('fork update preflight', () => {
     expect(git(root, 'status', '--porcelain')).toBe('')
   })
 
-  it('requires review for updater changes even when the merge is clean', () => {
+  it.each([
+    'src/main/updater/feed.ts',
+    'src/main/updater.ts',
+    'src/main/updater-prerelease-feed.ts',
+    'src/shared/release-channel.ts',
+    'src/shared/app-distribution.json',
+    'src/shared/app-release-url.ts'
+  ])('requires review for %s even when the merge is clean', (filename) => {
     const root = repository()
     git(root, 'switch', '-q', 'upstream')
-    save(root, 'src/main/updater/feed.ts', 'changed\n')
+    save(root, filename, 'changed\n')
     git(root, 'switch', '-q', 'fork')
     const report = inspectForkUpdate(root, 'upstream', 'fork-base')
     expect(report.status).toBe('review-required')
+    expect(report.reviewPaths).toEqual([filename])
     expect(report.reasons).toContain('migration-signing-or-updater-change')
   })
 

@@ -7,8 +7,9 @@ integration changes for an independently managed agent harness.
 
 - `origin` points to `r1cA18/orca`.
 - `upstream` points to `stablyai/orca`.
-- Keep `main` aligned with upstream. Develop changes on `feature/`, `fix/`, or
-  `docs/` branches and review them against their upstream base.
+- The default branch is `feature/personal-stable`. Keep `main` aligned with
+  upstream and review personal changes against their recorded upstream base.
+  Use `feature/`, `fix/`, or `docs/` branches for new work.
 - The initial DSH integration is on `feature/dsh-session-history`, based on
   upstream commit `18f674e69ff6708b634f53d668582d3943acb74d`.
 - Keep upstream's license and copyright notices. Do not commit credentials,
@@ -140,3 +141,30 @@ upstream RC. Release selection and the latest-release fallback recognize that
 format, while arbitrary RC and invalid personal revisions remain excluded from
 stable checks. Publishing only a GitHub prerelease would leave `/releases/latest`
 unavailable for the first personal build.
+
+## Personal monitoring and first installation
+
+The personal upstream preflight is the only enabled GitHub Actions workflow.
+Inherited workflows are individually disabled. The schedule runs daily at
+03:23 UTC and can also be dispatched manually; it only checks and reports.
+Application updates still require a tested signed release. It does not publish
+packages or replace a running application.
+
+The initial Apple Silicon package is `1.4.247-personal.1`, built from payload
+commit `d92c43654`. Apple notarization, stapler validation, strict code-signature
+verification and Gatekeeper assessment passed. Hidden packaged-app acceptance
+read four saved DSH sessions with matching replies and no scan issues. It used
+a disposable profile and mock Keychain; existing Keychain/TCC grants and an
+actual update to a second version remain unverified.
+
+Before cutover, stop the installed Orca and retain a private backup of both its
+application bundle and complete profile directory. Do not use Homebrew `--zap`.
+Keep the same application name and bundle identifier so the personal app uses
+the existing profile. Replace the upstream cask ownership with the personal cask
+and update the desktop Nix declaration together. A rollback must restore both
+the application and the compatible profile with Orca stopped.
+
+The repository is public. Publishing a GitHub release makes its installers
+publicly downloadable even when this fork is intended for personal use.
+Notarization itself does not publish a GitHub release. The first installer can
+be validated as a draft before publication and production cutover.
