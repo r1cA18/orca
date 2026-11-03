@@ -82,3 +82,43 @@ changes, already-included releases, divergent upstream histories and invalid
 bases/ancestry. The real stable release produced a review-required report with
 zero patch conflicts. These checks do not validate the candidate application.
 The owner selected signed personal releases as the distribution direction.
+
+## Stable release and personal distribution
+
+Reapplied the three personal commits onto upstream `v1.4.247` in
+`feature/personal-stable`. The recorded upstream base now matches that release.
+The previous feature branches remain available; the installed app is unchanged.
+
+The stable checkout passed 63 DSH tests across eight files, including the four
+saved subscription records. Main/preload/renderer and CLI builds passed, as did
+the Node typecheck. A hidden isolated Electron application returned all four
+records through History IPC with matching replies and zero scan issues.
+The generated resume commands restored the Codex and Claude launcher records in
+DSH TUI through node-pty; both exited zero after Ctrl+C without force or a prompt
+submission. Earlier raw Python PTY trials did not shut down reliably and are not
+the acceptance evidence.
+
+A retained production backup was copied privately and opened by the new database
+code. Schema version 3 was supported, all 32 profile documents validated, and
+their payloads/hashes remained identical. This checks a backup copy; production
+cutover still requires a fresh stopped-profile backup and post-launch checks.
+
+Application update feeds, release selection and packaging now use the personal
+repository declared in `src/shared/app-distribution.json`. Upstream agent-state
+and WSL policy feeds remain upstream. The targeted feed/signing suite passed
+165 tests before the additional channel-routing regression. Signed builds use
+the selected Developer ID's team rather than upstream's team. The release
+credential preflight accepts a local identity and a notarization Keychain profile.
+
+`personal-mac-release.mjs setup` opens the Apple Account page and a local macOS
+dialog. It sends the supplied app-specific password through a private PTY to
+notarytool; it does not put the password in process arguments, logs or output.
+The owner requested this UI after the initial terminal login returned HTTP 401.
+The GUI transport and signing helper passed six focused tests. No authentication
+values are stored in the repository.
+
+The local build command takes an explicit upstream-based personal revision,
+produces artifacts for the current Mac architecture, and disables publication.
+The publisher and updater use `latest-mac.yml` even for personal prerelease
+versions. Artifact signing/notarization, release publication, automatic scheduling
+and production installation are still pending.

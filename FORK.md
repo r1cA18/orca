@@ -91,3 +91,28 @@ Migrate once with Orca stopped using its supported profile-state backup/recovery
 path. Verify settings, workspaces, account homes and resume after that migration.
 Do not promise preserved Keychain/TCC grants across a change of signing identity.
 The installed upstream app remains in use until these gates are complete.
+
+## Personal macOS release
+
+The current integration branch is `feature/personal-stable`, based on `v1.4.247`.
+`src/shared/app-distribution.json` controls application update and publishing
+repository ownership. Upstream policy-data feeds keep their upstream source.
+Personal stable/RC/dev selections all stay within the personal repository.
+
+On macOS, `node config/scripts/personal-mac-release.mjs setup` opens the Apple
+Account page and a local dialog to register a notarization Keychain profile.
+Generate an app-specific password in Apple's Sign-In and Security settings;
+this is separate from the normal Apple Account password. The helper selects the
+matching Developer ID team and does not export the signing private key.
+
+After validation, build locally with
+`node config/scripts/personal-mac-release.mjs build 1.4.247-personal.1`.
+Revisions must be positive and tied to the checkout's package version. Keep
+release tags immutable. This command does not publish or install anything.
+It reuses the normal macOS release build, signs/notarizes using Keychain, and
+keeps the updater manifest channel named `latest`.
+
+Credentials remain local. A hosted build runner would need separate explicit
+credential provisioning; the repository does not export keys to GitHub.
+See [Apple's app-specific password instructions](https://support.apple.com/102654)
+and [notarization workflow](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).

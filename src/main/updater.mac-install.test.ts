@@ -115,8 +115,7 @@ vi.mock('./updater-prerelease-feed', () => ({
   fetchNewerReleaseTagsWithReadiness: vi
     .fn()
     .mockResolvedValue({ tags: ['v1.4.241'], state: 'ready' }),
-  getReleaseDownloadUrl: (tag: string) =>
-    `https://github.com/stablyai/orca/releases/download/${tag}`
+  getReleaseDownloadUrl: (tag: string) => `https://github.com/r1cA18/orca/releases/download/${tag}`
 }))
 
 vi.mock('./electron-updater-loader', () => ({

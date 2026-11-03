@@ -65,13 +65,18 @@ describe('electron-builder mac channel config', () => {
     expect(electronBuilderConfig.mac.notarize).toBe(false)
   })
 
-  // Twenty-four hourly releases would evict stable/RC from main repo’s ten-entry feed.
-  it('publishes hourly builds to the separate hourly repo', () => {
+  it('publishes channel builds to the personal repository', () => {
     withHourlyEnv((config) => {
-      expect(config.publish).toMatchObject({ repo: 'orca-hourly', releaseType: 'prerelease' })
+      expect(config.publish).toMatchObject({
+        owner: 'r1cA18',
+        repo: 'orca',
+        releaseType: 'prerelease'
+      })
     })
     expect(electronBuilderConfig.publish).toMatchObject({
+      owner: 'r1cA18',
       repo: 'orca',
+      channel: 'latest',
       releaseType: 'draft'
     })
   })
@@ -92,7 +97,11 @@ describe('electron-builder mac channel config', () => {
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.mac.notarize).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
-      expect(config.publish).toMatchObject({ repo: 'orca-adhoc', releaseType: 'prerelease' })
+      expect(config.publish).toMatchObject({
+        owner: 'r1cA18',
+        repo: 'orca',
+        releaseType: 'prerelease'
+      })
     })
   })
 
@@ -111,7 +120,11 @@ describe('electron-builder mac channel config', () => {
       expect(config.mac.hardenedRuntime).toBe(true)
       expect(config.mac.notarize).toBe(true)
       expect(config.forceCodeSigning).toBe(true)
-      expect(config.publish).toMatchObject({ repo: 'orca-daily', releaseType: 'prerelease' })
+      expect(config.publish).toMatchObject({
+        owner: 'r1cA18',
+        repo: 'orca',
+        releaseType: 'prerelease'
+      })
     })
   })
 

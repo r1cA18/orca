@@ -1,14 +1,15 @@
+import { APP_RELEASE_REPO, releaseTagFromUrl } from '../shared/app-release-url'
 import { net } from 'electron'
 import { parse } from 'yaml'
 import { compareVersions, isPrereleaseVersion, isValidVersion } from './updater-fallback'
 
-const ATOM_FEED_URL = 'https://github.com/stablyai/orca/releases.atom'
-const RELEASES_DOWNLOAD_BASE = 'https://github.com/stablyai/orca/releases/download'
+const ATOM_FEED_URL = `https://github.com/${APP_RELEASE_REPO}/releases.atom`
+const RELEASES_DOWNLOAD_BASE = `https://github.com/${APP_RELEASE_REPO}/releases/download`
 const FETCH_TIMEOUT_MS = 5000
 const MAX_MANIFEST_PROBE_CANDIDATES = 6
 
 // Atom includes stable and prerelease tags without channel filtering.
-const TAG_HREF_RE = /href="https:\/\/github\.com\/stablyai\/orca\/releases\/tag\/([^"]+)"/g
+const TAG_HREF_RE = /href="([^"]+)"/g
 
 export function getReleaseDownloadUrl(tag: string): string {
   return `${RELEASES_DOWNLOAD_BASE}/${encodeURIComponent(tag)}`
@@ -64,7 +65,10 @@ async function fetchReleaseFeedTags(): Promise<ReleaseFeedTag[] | null> {
     const tags: ReleaseFeedTag[] = []
 
     for (const match of body.matchAll(TAG_HREF_RE)) {
-      const tag = match[1]
+      const tag = releaseTagFromUrl(match[1])
+      if (!tag) {
+        continue
+      }
       const version = normalizeTagToVersion(tag)
       if (isValidVersion(version)) {
         tags.push({ tag, version })
@@ -158,7 +162,7 @@ async function getReleaseAssetReadiness(tag: string, assetName: string): Promise
   const isGitHubReleaseAsset =
     process.platform === 'win32' &&
     (isRelativeAsset ||
-      /^https:\/\/github\.com\/stablyai\/orca\/releases\/download\//i.test(assetName))
+      assetName.toLowerCase().startsWith(`${RELEASES_DOWNLOAD_BASE}/`.toLowerCase()))
   const assetUrl = isRelativeAsset
     ? getReleaseAssetUrl(tag, assetName.split('/').findLast(Boolean) ?? assetName)
     : assetName
@@ -217,17 +221,16 @@ async function getPlatformManifestReadiness(tag: string): Promise<ReleaseReadine
 export async function fetchLatestStableReleaseTag(): Promise<string | null> {
   try {
     // Resolve only the release-page redirect; installer redirects continue on to signed storage URLs.
-    const latestUrl = 'https://github.com/stablyai/orca/releases/latest'
+    const latestUrl = `https://github.com/${APP_RELEASE_REPO}/releases/latest`
     const response = await requestGitHubReleaseHead(latestUrl)
     if (!response?.redirectUrl || response.statusCode < 300 || response.statusCode >= 400) {
       return null
     }
     const target = new URL(response.redirectUrl, latestUrl)
-    const match = target.pathname.match(/^\/stablyai\/orca\/releases\/tag\/([^/]+)$/)
-    if (target.origin !== 'https://github.com' || !match) {
+    const tag = releaseTagFromUrl(target.href)
+    if (!tag) {
       return null
     }
-    const tag = decodeURIComponent(match[1])
     const version = normalizeTagToVersion(tag)
     if (!isValidVersion(version) || isPrereleaseVersion(version)) {
       return null

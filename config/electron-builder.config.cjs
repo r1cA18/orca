@@ -1,3 +1,5 @@
+const appDistribution = require('../src/shared/app-distribution.json')
+const [releaseOwner, releaseRepo] = appDistribution.repository.split('/')
 const { chmodSync, existsSync, readdirSync, readFileSync, writeFileSync } = require('node:fs')
 const { execFileSync } = require('node:child_process')
 const { join, resolve } = require('node:path')
@@ -231,7 +233,7 @@ const macUsageDescriptions = {
   ...MACOS_FOLDER_USAGE_DESCRIPTIONS
 }
 // Developer ID team that signs every release-channel mac build.
-const ORCA_MAC_TEAM_ID = '6CX3WHS9HZ'
+const ORCA_MAC_TEAM_ID = process.env.APPLE_TEAM_ID
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
@@ -739,8 +741,9 @@ module.exports = {
   npmRebuild: true,
   publish: {
     provider: 'github',
-    owner: 'stablyai',
-    repo: devChannelRepo ?? 'orca',
+    channel: 'latest',
+    owner: releaseOwner,
+    repo: releaseRepo,
     // Keep main-repo releases draft until release-cut verifies all assets; early --publish always would expose missing Windows installers.
     releaseType: devChannelRepo ? 'prerelease' : 'draft'
   }
@@ -823,6 +826,9 @@ async function packageMacTerminalHost(appPath, context) {
     arch,
     required: isMacRelease || process.env.CI === 'true'
   })
+  if (isMacRelease && !ORCA_MAC_TEAM_ID) {
+    throw new Error('APPLE_TEAM_ID is required to verify the personal release signature')
+  }
   await verifyMacTerminalHost({
     appPath,
     arch,

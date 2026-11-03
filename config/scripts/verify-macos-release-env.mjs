@@ -1,27 +1,36 @@
 #!/usr/bin/env node
+import { isDirectInvocation } from './script-entry-detection.mjs'
 
-const required = [
-  'APPLE_ID',
-  'APPLE_APP_SPECIFIC_PASSWORD',
-  'APPLE_TEAM_ID',
-  'CSC_LINK',
-  'CSC_KEY_PASSWORD'
-]
-
-const missing = required.filter((key) => {
-  const value = process.env[key]
-  return typeof value !== 'string' || value.trim().length === 0
-})
-
-if (missing.length > 0) {
-  // Allow local ad-hoc validation but fail production release before unsigned/unnotarized package can appear successful.
-  console.error('Missing required macOS release signing environment variables:')
-  for (const key of missing) {
-    console.error(`- ${key}`)
+export function missingMacReleaseCredentials(env) {
+  const present = (key) => typeof env[key] === 'string' && env[key].trim().length > 0
+  const missing = []
+  if (!present('APPLE_TEAM_ID')) {
+    missing.push('APPLE_TEAM_ID')
   }
-  console.error('')
-  console.error('Use `pnpm build:mac` for local ad-hoc builds, or provide the')
-  console.error('Developer ID + notarization credentials before running the')
-  console.error('production release build.')
-  process.exit(1)
+  if (!present('CSC_NAME')) {
+    for (const key of ['CSC_LINK', 'CSC_KEY_PASSWORD']) {
+      if (!present(key)) {
+        missing.push(key)
+      }
+    }
+  }
+  if (!present('APPLE_KEYCHAIN_PROFILE')) {
+    for (const key of ['APPLE_ID', 'APPLE_APP_SPECIFIC_PASSWORD']) {
+      if (!present(key)) {
+        missing.push(key)
+      }
+    }
+  }
+  return missing
+}
+
+if (isDirectInvocation(import.meta.url, process.argv[1])) {
+  const missing = missingMacReleaseCredentials(process.env)
+  if (missing.length > 0) {
+    console.error(`Missing macOS release credentials: ${missing.join(', ')}`)
+    console.error(
+      'Use a Developer ID identity (CSC_NAME) and a notarization Keychain profile, or the certificate-file and Apple ID credentials.'
+    )
+    process.exitCode = 1
+  }
 }

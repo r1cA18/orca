@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   findInstallerAssetName,
+  getReleaseRepoForChannel,
+  MAIN_RELEASE_REPO,
+  RELEASE_CHANNELS,
   getReleaseNotesUrlForVersion,
   getVersionChannel,
   hasInstallableArtifactForPlatform,
@@ -20,6 +23,13 @@ import {
 import { compareAppVersions } from './app-version'
 
 describe('release channel', () => {
+  it('keeps every application channel on the fork and retains upstream data feeds', () => {
+    for (const channel of RELEASE_CHANNELS) {
+      expect(getReleaseRepoForChannel(channel)).toBe('r1cA18/orca')
+    }
+    expect(MAIN_RELEASE_REPO).toBe('stablyai/orca')
+  })
+
   it('classifies versions by channel', () => {
     expect(getVersionChannel('1.4.160')).toBe('stable')
     expect(getVersionChannel('v1.4.160')).toBe('stable')
@@ -30,24 +40,23 @@ describe('release channel', () => {
     expect(getVersionChannel('not-a-version')).toBeNull()
   })
 
-  // Dev tags exist only in their dedicated repos; main-repo links 404.
   it('builds release-notes links against the repo that published the version', () => {
     expect(getReleaseNotesUrlForVersion('1.4.160-hourly.202607281400')).toBe(
-      'https://github.com/stablyai/orca-hourly/releases/tag/v1.4.160-hourly.202607281400'
+      'https://github.com/r1cA18/orca/releases/tag/v1.4.160-hourly.202607281400'
     )
     expect(getReleaseNotesUrlForVersion('1.4.160-daily.202607281300')).toBe(
-      'https://github.com/stablyai/orca-daily/releases/tag/v1.4.160-daily.202607281300'
+      'https://github.com/r1cA18/orca/releases/tag/v1.4.160-daily.202607281300'
     )
     expect(getReleaseNotesUrlForVersion('1.4.160')).toBe(
-      'https://github.com/stablyai/orca/releases/tag/v1.4.160'
+      'https://github.com/r1cA18/orca/releases/tag/v1.4.160'
     )
     expect(getReleaseNotesUrlForVersion('v1.4.160-rc.3')).toBe(
-      'https://github.com/stablyai/orca/releases/tag/v1.4.160-rc.3'
+      'https://github.com/r1cA18/orca/releases/tag/v1.4.160-rc.3'
     )
     expect(getReleaseNotesUrlForVersion('1.4.160-adhoc.20260728140533')).toBe(
-      'https://github.com/stablyai/orca-adhoc/releases/tag/v1.4.160-adhoc.20260728140533'
+      'https://github.com/r1cA18/orca/releases/tag/v1.4.160-adhoc.20260728140533'
     )
-    expect(getReleaseNotesUrlForVersion(null)).toBe('https://github.com/stablyai/orca/releases')
+    expect(getReleaseNotesUrlForVersion(null)).toBe('https://github.com/r1cA18/orca/releases')
   })
 
   it('round-trips an hourly version stamp as UTC', () => {
@@ -208,7 +217,7 @@ describe('release channel', () => {
       channel: 'hourly',
       name: null,
       publishedAt: null,
-      releaseUrl: `https://github.com/stablyai/orca-hourly/releases/tag/v${version}`,
+      releaseUrl: `https://github.com/r1cA18/orca/releases/tag/v${version}`,
       installerUrl: null
     })
     const sorted = sortReleaseBuildsNewestFirst([
@@ -251,7 +260,7 @@ describe('release channel', () => {
       channel: 'adhoc',
       name: null,
       publishedAt: null,
-      releaseUrl: `https://github.com/stablyai/orca-adhoc/releases/tag/v${version}`,
+      releaseUrl: `https://github.com/r1cA18/orca/releases/tag/v${version}`,
       installerUrl: null
     })
     const sorted = sortReleaseBuildsNewestFirst([
@@ -273,7 +282,7 @@ describe('release channel', () => {
       channel: 'adhoc',
       name: null,
       publishedAt: null,
-      releaseUrl: `https://github.com/stablyai/orca-adhoc/releases/tag/v${version}`,
+      releaseUrl: `https://github.com/r1cA18/orca/releases/tag/v${version}`,
       installerUrl: null
     })
     const sorted = sortReleaseBuildsNewestFirst([
